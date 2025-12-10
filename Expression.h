@@ -12,6 +12,7 @@ public:
     typedef struct node
     {
         char val;
+        struct node *prev;
         struct node *next;
     } node;
 

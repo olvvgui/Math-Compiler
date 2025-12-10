@@ -14,7 +14,7 @@ int main()
 
     // system("clear");
 
-    cout << "Example of a valid expression\n(-4) + 3 * 5^4 (3/4)\n\n";
+    cout << "Example of a valid expression\n(-4) + 3 * 5^4 * (3/4)\n\n";
     cout << "Type your Expression:\n";
 
     while (true)
@@ -29,9 +29,15 @@ int main()
         if (c != ' ')
             exp.enqueue(c, &ns_queue);
     }
-    printf("%s\n", exp.verify_expression(&raw_queue, &ns_queue) ? "deu certo" : "false");
+    if (!exp.verify_expression(&raw_queue, &ns_queue))
+    {
+        cout << "false";
+        return 1;
+    }
 
-    exp.infix_to_posfix(&raw_queue, &posfix);
 
-    exp.print(&raw_queue, &posfix);
+
+    exp.infix_to_posfix(&ns_queue, &posfix);
+
+    exp.print(&ns_queue, &posfix);
 }

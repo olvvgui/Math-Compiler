@@ -44,6 +44,7 @@ void Expression::enqueue(char exp, queue *q)
     node *token = new node;
     token->val = exp;
     token->next = nullptr;
+    token->prev = q->last;
 
     if (q->first == nullptr)
     {
@@ -192,7 +193,7 @@ bool Expression::verify_expression(queue *raw, queue *no_space_queue)
 
 bool Expression::isOperator(char op)
 {
-    char operators[] = {'+', '-', '*', '/', '^'};
+    char operators[] = {'+', '-', '*', '/', '^', '~'};
     for (char c : operators)
         if (op == c)
             return true;
@@ -213,6 +214,8 @@ char Expression::returnOperator(char op)
 
 int Expression::get_precedence(char op)
 {
+    if (op == '~')
+        return 4; // unary operator
     if (op == '^')
         return 3;
 
@@ -232,6 +235,7 @@ void Expression::infix_to_posfix(queue *ifx, queue *pfx)
     inicialize_stack(oprS);
     while (cur != nullptr)
     {
+
         if (isdigit(cur->val))
         {
             while (cur != nullptr && isdigit(cur->val))
@@ -256,6 +260,19 @@ void Expression::infix_to_posfix(queue *ifx, queue *pfx)
 
         else
         {
+            bool isUnary = cur == ifx->first ||
+                           (cur->prev && isOperator(cur->prev->val)) ||
+                           (cur->prev && cur->prev->val == '(');
+
+            if ((cur->val == '+' || cur->val == '-') && isUnary)
+            {
+                if (cur->val == '-')
+                    push('~', oprS);
+
+                cur = cur->next;
+                continue;
+            }
+
             string assoc = (cur->val == '^') ? "right" : "left"; // association
 
             while (oprS->top != nullptr && oprS->top->val != '(')
@@ -265,6 +282,7 @@ void Expression::infix_to_posfix(queue *ifx, queue *pfx)
 
                 if ((assoc == "left" && firstPrec >= tokPrec) ||
                     (assoc == "right" && firstPrec > tokPrec))
+
                     enqueue(pop(oprS), pfx);
 
                 else
@@ -287,6 +305,8 @@ void Expression::print(queue *ifx, queue *pfx)
     node *curIFX = ifx->first;
     node *curPFX = pfx->first;
 
+    cout << "\n";
+
     while (curIFX != nullptr)
     {
         cout << curIFX->val;
@@ -294,16 +314,19 @@ void Expression::print(queue *ifx, queue *pfx)
         curIFX = curIFX->next;
     }
 
-    cout << "\n";
+    cout << "\n\n" ;
 
     while (curPFX != nullptr)
     {
-        cout << curPFX->val;
+        if ((isOperator(curPFX->val)))
+            printf("%c ", curPFX->val);
+        else
+            cout << curPFX->val;
 
         curPFX = curPFX->next;
     }
 
-    cout << "\n";
+    cout << "\n\n";
 }
 
 void Expression::compile(queue *pfx)

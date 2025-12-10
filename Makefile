@@ -19,9 +19,13 @@ $(TARGET): $(OBJS)
 %.o: %.cpp expression.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Executar o programa
+# Executar normalmente
 run: $(TARGET)
 	./$(TARGET)
+
+# Executar com input vindo de arquivo
+run-input: $(TARGET)
+	./$(TARGET) < input.txt
 
 # Limpar arquivos gerados
 clean:
